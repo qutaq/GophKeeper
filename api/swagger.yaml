@@ -1,0 +1,440 @@
+consumes:
+    - application/json
+definitions:
+    DataServiceUpdateItemBody:
+        properties:
+            encrypted_data:
+                format: byte
+                type: string
+            expected_version:
+                description: expected_version enables optimistic concurrency control.
+                format: int64
+                type: string
+            metadata:
+                additionalProperties:
+                    type: string
+                type: object
+        type: object
+    protobufAny:
+        additionalProperties: {}
+        properties:
+            '@type':
+                type: string
+        type: object
+    rpcStatus:
+        properties:
+            code:
+                format: int32
+                type: integer
+            details:
+                items:
+                    $ref: '#/definitions/protobufAny'
+                    type: object
+                type: array
+            message:
+                type: string
+        type: object
+    v1AddItemRequest:
+        properties:
+            encrypted_data:
+                format: byte
+                type: string
+            metadata:
+                additionalProperties:
+                    type: string
+                type: object
+            type:
+                $ref: '#/definitions/v1DataType'
+        type: object
+    v1AddItemResponse:
+        properties:
+            item:
+                $ref: '#/definitions/v1Item'
+        type: object
+    v1DataType:
+        default: DATA_TYPE_UNSPECIFIED
+        description: DataType enumerates supported private data kinds.
+        enum:
+            - DATA_TYPE_UNSPECIFIED
+            - DATA_TYPE_CREDENTIALS
+            - DATA_TYPE_TEXT
+            - DATA_TYPE_BINARY
+            - DATA_TYPE_CARD
+            - DATA_TYPE_OTP
+        type: string
+    v1DeleteItemResponse:
+        properties:
+            item:
+                $ref: '#/definitions/v1Item'
+        type: object
+    v1GetItemResponse:
+        properties:
+            item:
+                $ref: '#/definitions/v1Item'
+        type: object
+    v1Item:
+        description: Item is a private data record. Payload is already E2E-encrypted by the client.
+        properties:
+            deleted:
+                type: boolean
+            encrypted_data:
+                format: byte
+                type: string
+            id:
+                type: string
+            metadata:
+                additionalProperties:
+                    type: string
+                type: object
+            owner_id:
+                type: string
+            type:
+                $ref: '#/definitions/v1DataType'
+            updated_at:
+                format: date-time
+                type: string
+            version:
+                format: int64
+                type: string
+        type: object
+    v1ListItemsResponse:
+        properties:
+            items:
+                items:
+                    $ref: '#/definitions/v1Item'
+                    type: object
+                type: array
+        type: object
+    v1LoginRequest:
+        properties:
+            login:
+                type: string
+            password:
+                type: string
+        type: object
+    v1LoginResponse:
+        properties:
+            access_token:
+                type: string
+            refresh_token:
+                type: string
+            user:
+                $ref: '#/definitions/v1User'
+        type: object
+    v1LogoutRequest:
+        properties:
+            refresh_token:
+                type: string
+        type: object
+    v1LogoutResponse:
+        type: object
+    v1RefreshRequest:
+        properties:
+            refresh_token:
+                type: string
+        type: object
+    v1RefreshResponse:
+        properties:
+            access_token:
+                type: string
+            refresh_token:
+                type: string
+        type: object
+    v1RegisterRequest:
+        properties:
+            login:
+                type: string
+            password:
+                type: string
+        type: object
+    v1RegisterResponse:
+        properties:
+            user:
+                $ref: '#/definitions/v1User'
+        type: object
+    v1SyncRequest:
+        properties:
+            since_timestamp:
+                description: since_timestamp is an optional alternative cursor (items with updated_at > value).
+                format: date-time
+                type: string
+            since_version:
+                description: since_version is the exclusive lower bound of item versions to return.
+                format: int64
+                type: string
+        type: object
+    v1SyncResponse:
+        properties:
+            items:
+                items:
+                    $ref: '#/definitions/v1Item'
+                    type: object
+                type: array
+            server_version:
+                description: server_version is the highest item version among returned (or known) items.
+                format: int64
+                type: string
+        type: object
+    v1UpdateItemResponse:
+        properties:
+            item:
+                $ref: '#/definitions/v1Item'
+        type: object
+    v1User:
+        description: User is a registered account (no secrets in the wire model).
+        properties:
+            created_at:
+                format: date-time
+                type: string
+            id:
+                type: string
+            login:
+                type: string
+            updated_at:
+                format: date-time
+                type: string
+        type: object
+info:
+    description: gRPC API for private data vault with multi-device sync.
+    title: GophKeeper API
+    version: "1.0"
+paths:
+    /v1/auth/login:
+        post:
+            operationId: AuthService_Login
+            parameters:
+                - in: body
+                  name: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/v1LoginRequest'
+            responses:
+                "200":
+                    description: A successful response.
+                    schema:
+                        $ref: '#/definitions/v1LoginResponse'
+                default:
+                    description: An unexpected error response.
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+            summary: Login authenticates a user and returns access/refresh tokens.
+            tags:
+                - AuthService
+    /v1/auth/logout:
+        post:
+            operationId: AuthService_Logout
+            parameters:
+                - in: body
+                  name: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/v1LogoutRequest'
+            responses:
+                "200":
+                    description: A successful response.
+                    schema:
+                        $ref: '#/definitions/v1LogoutResponse'
+                default:
+                    description: An unexpected error response.
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+            summary: Logout revokes the given refresh token.
+            tags:
+                - AuthService
+    /v1/auth/refresh:
+        post:
+            operationId: AuthService_Refresh
+            parameters:
+                - in: body
+                  name: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/v1RefreshRequest'
+            responses:
+                "200":
+                    description: A successful response.
+                    schema:
+                        $ref: '#/definitions/v1RefreshResponse'
+                default:
+                    description: An unexpected error response.
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+            summary: Refresh exchanges a valid refresh token for a new token pair.
+            tags:
+                - AuthService
+    /v1/auth/register:
+        post:
+            operationId: AuthService_Register
+            parameters:
+                - in: body
+                  name: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/v1RegisterRequest'
+            responses:
+                "200":
+                    description: A successful response.
+                    schema:
+                        $ref: '#/definitions/v1RegisterResponse'
+                default:
+                    description: An unexpected error response.
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+            summary: Register creates a new user account.
+            tags:
+                - AuthService
+    /v1/items:
+        get:
+            operationId: DataService_ListItems
+            parameters:
+                - default: DATA_TYPE_UNSPECIFIED
+                  description: If set, only items of this type are returned.
+                  enum:
+                    - DATA_TYPE_UNSPECIFIED
+                    - DATA_TYPE_CREDENTIALS
+                    - DATA_TYPE_TEXT
+                    - DATA_TYPE_BINARY
+                    - DATA_TYPE_CARD
+                    - DATA_TYPE_OTP
+                  in: query
+                  name: type
+                  required: false
+                  type: string
+                - description: When true, soft-deleted items are included.
+                  in: query
+                  name: include_deleted
+                  required: false
+                  type: boolean
+            responses:
+                "200":
+                    description: A successful response.
+                    schema:
+                        $ref: '#/definitions/v1ListItemsResponse'
+                default:
+                    description: An unexpected error response.
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+            summary: ListItems returns items belonging to the authenticated owner.
+            tags:
+                - DataService
+        post:
+            operationId: DataService_AddItem
+            parameters:
+                - in: body
+                  name: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/v1AddItemRequest'
+            responses:
+                "200":
+                    description: A successful response.
+                    schema:
+                        $ref: '#/definitions/v1AddItemResponse'
+                default:
+                    description: An unexpected error response.
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+            summary: AddItem creates a new encrypted item for the authenticated owner.
+            tags:
+                - DataService
+    /v1/items/{id}:
+        delete:
+            operationId: DataService_DeleteItem
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  type: string
+            responses:
+                "200":
+                    description: A successful response.
+                    schema:
+                        $ref: '#/definitions/v1DeleteItemResponse'
+                default:
+                    description: An unexpected error response.
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+            summary: DeleteItem soft-deletes an item (deleted=true) for sync-friendly removal.
+            tags:
+                - DataService
+        get:
+            operationId: DataService_GetItem
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  type: string
+            responses:
+                "200":
+                    description: A successful response.
+                    schema:
+                        $ref: '#/definitions/v1GetItemResponse'
+                default:
+                    description: An unexpected error response.
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+            summary: GetItem returns a single item by id if owned by the caller.
+            tags:
+                - DataService
+        put:
+            operationId: DataService_UpdateItem
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  type: string
+                - in: body
+                  name: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/DataServiceUpdateItemBody'
+            responses:
+                "200":
+                    description: A successful response.
+                    schema:
+                        $ref: '#/definitions/v1UpdateItemResponse'
+                default:
+                    description: An unexpected error response.
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+            summary: UpdateItem updates an existing item owned by the caller.
+            tags:
+                - DataService
+    /v1/sync:
+        post:
+            operationId: SyncService_Sync
+            parameters:
+                - in: body
+                  name: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/v1SyncRequest'
+            responses:
+                "200":
+                    description: A successful response.
+                    schema:
+                        $ref: '#/definitions/v1SyncResponse'
+                default:
+                    description: An unexpected error response.
+                    schema:
+                        $ref: '#/definitions/rpcStatus'
+            summary: |-
+                Sync returns all item changes for the owner since the given cursor.
+                Soft-deleted items are included so clients can converge.
+            tags:
+                - SyncService
+produces:
+    - application/json
+schemes:
+    - https
+securityDefinitions:
+    Bearer:
+        description: 'JWT access token. Format: Bearer <token>'
+        in: header
+        name: Authorization
+        type: apiKey
+swagger: "2.0"
+tags:
+    - name: AuthService
+    - name: DataService
+    - name: SyncService

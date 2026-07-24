@@ -1,0 +1,9 @@
+# Example client config (~/.gophkeeper/config.yaml)
+server_address: localhost:50051
+data_dir: ""  # default: ~/.gophkeeper
+tls:
+  enabled: false
+  ca_file: ""              # custom CA to trust server cert
+  cert_file: ""            # optional client cert (mTLS)
+  key_file: ""             # optional client key (mTLS)
+  insecure_skip_verify: false
