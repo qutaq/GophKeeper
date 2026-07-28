@@ -11,22 +11,23 @@ func toProtoItem(item *model.Item) *gophkeeperv1.Item {
 	if item == nil {
 		return nil
 	}
-	out := &gophkeeperv1.Item{
+	meta := map[string]string(item.Metadata)
+	if meta == nil {
+		meta = map[string]string{}
+	}
+	b := gophkeeperv1.Item_builder{
 		Id:            item.ID,
 		OwnerId:       item.OwnerID,
 		Type:          gophkeeperv1.DataType(item.Type),
 		EncryptedData: append([]byte(nil), item.EncryptedData...),
-		Metadata:      map[string]string(item.Metadata),
+		Metadata:      meta,
 		Version:       item.Version,
 		Deleted:       item.Deleted,
 	}
 	if !item.UpdatedAt.IsZero() {
-		out.UpdatedAt = timestamppb.New(item.UpdatedAt)
+		b.UpdatedAt = timestamppb.New(item.UpdatedAt)
 	}
-	if out.Metadata == nil {
-		out.Metadata = map[string]string{}
-	}
-	return out
+	return b.Build()
 }
 
 func toProtoItems(items []model.Item) []*gophkeeperv1.Item {

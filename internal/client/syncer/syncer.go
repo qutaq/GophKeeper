@@ -5,7 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 
 	"github.com/qutaq/gophkeeper/internal/client/storage"
 	"github.com/qutaq/gophkeeper/internal/client/transport"
@@ -38,7 +38,7 @@ func (s *Service) Sync(ctx context.Context, accessToken string) (*Result, error)
 		return nil, err
 	}
 
-	pull, err := s.conn.Sync.Sync(authCtx, &gophkeeperv1.SyncRequest{SinceVersion: since})
+	pull, err := s.conn.Sync.Sync(authCtx, gophkeeperv1.SyncRequest_builder{SinceVersion: since}.Build())
 	if err != nil {
 		return nil, fmt.Errorf("sync: pull: %w", err)
 	}
@@ -88,7 +88,10 @@ func (s *Service) applyRemote(ctx context.Context, remote *gophkeeperv1.Item) er
 			return nil
 		}
 		if local.Dirty && remote.GetVersion() > local.Version {
-			log.Printf("sync: conflict item=%s remote_version=%d wins over dirty local", remote.GetId(), remote.GetVersion())
+			slog.Warn("sync: conflict, remote wins over dirty local",
+				"item", remote.GetId(),
+				"remote_version", remote.GetVersion(),
+			)
 		}
 	}
 
@@ -113,11 +116,11 @@ func (s *Service) applyRemote(ctx context.Context, remote *gophkeeperv1.Item) er
 func (s *Service) pushOne(authCtx, ctx context.Context, item storage.LocalItem) error {
 	switch {
 	case item.Version == 0 && !item.Deleted:
-		resp, err := s.conn.Data.AddItem(authCtx, &gophkeeperv1.AddItemRequest{
+		resp, err := s.conn.Data.AddItem(authCtx, gophkeeperv1.AddItemRequest_builder{
 			Type:          gophkeeperv1.DataType(item.Type),
 			EncryptedData: item.EncryptedData,
 			Metadata:      map[string]string(item.Metadata),
-		})
+		}.Build())
 		if err != nil {
 			return fmt.Errorf("sync: add %s: %w", item.ID, err)
 		}
@@ -126,27 +129,27 @@ func (s *Service) pushOne(authCtx, ctx context.Context, item storage.LocalItem) 
 		// Never synced — just drop locally.
 		return s.vault.DeleteItemHard(ctx, item.ID)
 	case item.Deleted:
-		resp, err := s.conn.Data.DeleteItem(authCtx, &gophkeeperv1.DeleteItemRequest{Id: item.ID})
+		resp, err := s.conn.Data.DeleteItem(authCtx, gophkeeperv1.DeleteItemRequest_builder{Id: item.ID}.Build())
 		if err != nil {
 			return fmt.Errorf("sync: delete %s: %w", item.ID, err)
 		}
 		return s.replaceAfterPush(ctx, item.ID, resp.GetItem())
 	default:
-		resp, err := s.conn.Data.UpdateItem(authCtx, &gophkeeperv1.UpdateItemRequest{
+		resp, err := s.conn.Data.UpdateItem(authCtx, gophkeeperv1.UpdateItemRequest_builder{
 			Id:              item.ID,
 			EncryptedData:   item.EncryptedData,
 			Metadata:        map[string]string(item.Metadata),
 			ExpectedVersion: item.Version,
-		})
+		}.Build())
 		if err != nil {
 			// Fall back to LWW.
-			log.Printf("sync: update conflict item=%s, retrying LWW", item.ID)
-			resp, err = s.conn.Data.UpdateItem(authCtx, &gophkeeperv1.UpdateItemRequest{
+			slog.Warn("sync: update conflict, retrying LWW", "item", item.ID)
+			resp, err = s.conn.Data.UpdateItem(authCtx, gophkeeperv1.UpdateItemRequest_builder{
 				Id:              item.ID,
 				EncryptedData:   item.EncryptedData,
 				Metadata:        map[string]string(item.Metadata),
 				ExpectedVersion: 0,
-			})
+			}.Build())
 			if err != nil {
 				return fmt.Errorf("sync: update %s: %w", item.ID, err)
 			}

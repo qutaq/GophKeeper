@@ -11,14 +11,19 @@ import (
 	syncsvc "github.com/qutaq/gophkeeper/internal/server/sync"
 )
 
+// SyncService is the sync pull use-case required by gRPC handlers.
+type SyncService interface {
+	Pull(ctx context.Context, ownerID string, sinceVersion int64, sinceTimestamp time.Time) (*syncsvc.Result, error)
+}
+
 // SyncServer implements gophkeeper.v1.SyncService.
 type SyncServer struct {
 	gophkeeperv1.UnimplementedSyncServiceServer
-	svc *syncsvc.Service
+	svc SyncService
 }
 
 // NewSyncServer wires a sync Service into gRPC.
-func NewSyncServer(svc *syncsvc.Service) *SyncServer {
+func NewSyncServer(svc SyncService) *SyncServer {
 	return &SyncServer{svc: svc}
 }
 
@@ -38,8 +43,8 @@ func (s *SyncServer) Sync(ctx context.Context, req *gophkeeperv1.SyncRequest) (*
 	if err != nil {
 		return nil, status.Error(codes.Internal, "internal error")
 	}
-	return &gophkeeperv1.SyncResponse{
+	return gophkeeperv1.SyncResponse_builder{
 		Items:         toProtoItems(result.Items),
 		ServerVersion: result.ServerVersion,
-	}, nil
+	}.Build(), nil
 }

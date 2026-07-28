@@ -4,6 +4,9 @@ package auth
 import (
 	"context"
 	"fmt"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/qutaq/gophkeeper/internal/client/crypto"
 	"github.com/qutaq/gophkeeper/internal/client/storage"
@@ -11,6 +14,10 @@ import (
 	gophkeeperv1 "github.com/qutaq/gophkeeper/internal/proto"
 	"github.com/qutaq/gophkeeper/pkg/secure"
 )
+
+// refreshSkew refreshes slightly before exp so in-flight RPCs are less likely to
+// hit Unauthenticated at the exact expiry boundary.
+const refreshSkew = 30 * time.Second
 
 // Service handles register/login against the server and local vault unlock.
 type Service struct {
@@ -61,10 +68,10 @@ func (s *Service) Unlock(ctx context.Context, masterPassword []byte) (*crypto.Ma
 
 // Register creates a remote account and stores tokens locally (encrypted with key).
 func (s *Service) Register(ctx context.Context, login, password string, key *crypto.MasterKey) error {
-	resp, err := s.conn.Auth.Register(ctx, &gophkeeperv1.RegisterRequest{
+	resp, err := s.conn.Auth.Register(ctx, gophkeeperv1.RegisterRequest_builder{
 		Login:    login,
 		Password: password,
-	})
+	}.Build())
 	if err != nil {
 		return fmt.Errorf("auth: register: %w", err)
 	}
@@ -76,10 +83,10 @@ func (s *Service) Login(ctx context.Context, login, password, knownUserID string
 	if key == nil {
 		return fmt.Errorf("auth: master key required to seal tokens")
 	}
-	resp, err := s.conn.Auth.Login(ctx, &gophkeeperv1.LoginRequest{
+	resp, err := s.conn.Auth.Login(ctx, gophkeeperv1.LoginRequest_builder{
 		Login:    login,
 		Password: password,
-	})
+	}.Build())
 	if err != nil {
 		return fmt.Errorf("auth: login: %w", err)
 	}
@@ -123,9 +130,28 @@ func (s *Service) EnsureAccess(ctx context.Context, key *crypto.MasterKey) (stri
 		if err != nil {
 			return "", fmt.Errorf("auth: decrypt access token: %w", err)
 		}
-		return access, nil
+		if accessStillValid(access, time.Now()) {
+			return access, nil
+		}
+	}
+	if len(session.RefreshToken) == 0 {
+		return "", fmt.Errorf("auth: not logged in")
 	}
 	return s.refresh(ctx, session, key)
+}
+
+// accessStillValid reports whether the JWT access token is usable without refresh.
+// Signature is not verified (client has no signing keys); only claim exp is read.
+func accessStillValid(token string, now time.Time) bool {
+	claims := jwt.MapClaims{}
+	if _, _, err := jwt.NewParser().ParseUnverified(token, claims); err != nil {
+		return false
+	}
+	exp, err := claims.GetExpirationTime()
+	if err != nil || exp == nil {
+		return false
+	}
+	return now.Add(refreshSkew).Before(exp.Time)
 }
 
 func (s *Service) refresh(ctx context.Context, session storage.Session, key *crypto.MasterKey) (string, error) {
@@ -135,9 +161,9 @@ func (s *Service) refresh(ctx context.Context, session storage.Session, key *cry
 	}
 	defer secure.Zero(refreshPlain)
 
-	resp, err := s.conn.Auth.Refresh(ctx, &gophkeeperv1.RefreshRequest{
+	resp, err := s.conn.Auth.Refresh(ctx, gophkeeperv1.RefreshRequest_builder{
 		RefreshToken: string(refreshPlain),
-	})
+	}.Build())
 	if err != nil {
 		return "", fmt.Errorf("auth: refresh: %w", err)
 	}

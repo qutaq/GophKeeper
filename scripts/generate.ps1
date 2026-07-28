@@ -10,6 +10,7 @@ protoc `
   --proto_path=third_party/googleapis `
   --proto_path=third_party `
   --go_out=internal/proto --go_opt=paths=source_relative `
+  --go_opt=default_api_level=API_OPAQUE `
   --go-grpc_out=internal/proto --go-grpc_opt=paths=source_relative `
   --openapiv2_out=api/swagger `
   --openapiv2_opt=allow_merge=true,merge_file_name=gophkeeper,json_names_for_fields=false `

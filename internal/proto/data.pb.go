@@ -11,7 +11,6 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
-	sync "sync"
 	unsafe "unsafe"
 )
 
@@ -23,12 +22,12 @@ const (
 )
 
 type AddItemRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Type          DataType               `protobuf:"varint,1,opt,name=type,proto3,enum=gophkeeper.v1.DataType" json:"type,omitempty"`
-	EncryptedData []byte                 `protobuf:"bytes,2,opt,name=encrypted_data,json=encryptedData,proto3" json:"encrypted_data,omitempty"`
-	Metadata      map[string]string      `protobuf:"bytes,3,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                    protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Type          DataType               `protobuf:"varint,1,opt,name=type,proto3,enum=gophkeeper.v1.DataType"`
+	xxx_hidden_EncryptedData []byte                 `protobuf:"bytes,2,opt,name=encrypted_data,json=encryptedData,proto3"`
+	xxx_hidden_Metadata      map[string]string      `protobuf:"bytes,3,rep,name=metadata,proto3" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *AddItemRequest) Reset() {
@@ -56,37 +55,65 @@ func (x *AddItemRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AddItemRequest.ProtoReflect.Descriptor instead.
-func (*AddItemRequest) Descriptor() ([]byte, []int) {
-	return file_data_proto_rawDescGZIP(), []int{0}
-}
-
 func (x *AddItemRequest) GetType() DataType {
 	if x != nil {
-		return x.Type
+		return x.xxx_hidden_Type
 	}
 	return DataType_DATA_TYPE_UNSPECIFIED
 }
 
 func (x *AddItemRequest) GetEncryptedData() []byte {
 	if x != nil {
-		return x.EncryptedData
+		return x.xxx_hidden_EncryptedData
 	}
 	return nil
 }
 
 func (x *AddItemRequest) GetMetadata() map[string]string {
 	if x != nil {
-		return x.Metadata
+		return x.xxx_hidden_Metadata
 	}
 	return nil
 }
 
+func (x *AddItemRequest) SetType(v DataType) {
+	x.xxx_hidden_Type = v
+}
+
+func (x *AddItemRequest) SetEncryptedData(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_EncryptedData = v
+}
+
+func (x *AddItemRequest) SetMetadata(v map[string]string) {
+	x.xxx_hidden_Metadata = v
+}
+
+type AddItemRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Type          DataType
+	EncryptedData []byte
+	Metadata      map[string]string
+}
+
+func (b0 AddItemRequest_builder) Build() *AddItemRequest {
+	m0 := &AddItemRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Type = b.Type
+	x.xxx_hidden_EncryptedData = b.EncryptedData
+	x.xxx_hidden_Metadata = b.Metadata
+	return m0
+}
+
 type AddItemResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Item          *Item                  `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Item *Item                  `protobuf:"bytes,1,opt,name=item,proto3"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *AddItemResponse) Reset() {
@@ -114,27 +141,50 @@ func (x *AddItemResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AddItemResponse.ProtoReflect.Descriptor instead.
-func (*AddItemResponse) Descriptor() ([]byte, []int) {
-	return file_data_proto_rawDescGZIP(), []int{1}
-}
-
 func (x *AddItemResponse) GetItem() *Item {
 	if x != nil {
-		return x.Item
+		return x.xxx_hidden_Item
 	}
 	return nil
 }
 
+func (x *AddItemResponse) SetItem(v *Item) {
+	x.xxx_hidden_Item = v
+}
+
+func (x *AddItemResponse) HasItem() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Item != nil
+}
+
+func (x *AddItemResponse) ClearItem() {
+	x.xxx_hidden_Item = nil
+}
+
+type AddItemResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Item *Item
+}
+
+func (b0 AddItemResponse_builder) Build() *AddItemResponse {
+	m0 := &AddItemResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Item = b.Item
+	return m0
+}
+
 type UpdateItemRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	EncryptedData []byte                 `protobuf:"bytes,2,opt,name=encrypted_data,json=encryptedData,proto3" json:"encrypted_data,omitempty"`
-	Metadata      map[string]string      `protobuf:"bytes,3,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	// expected_version enables optimistic concurrency control.
-	ExpectedVersion int64 `protobuf:"varint,4,opt,name=expected_version,json=expectedVersion,proto3" json:"expected_version,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state                      protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id              string                 `protobuf:"bytes,1,opt,name=id,proto3"`
+	xxx_hidden_EncryptedData   []byte                 `protobuf:"bytes,2,opt,name=encrypted_data,json=encryptedData,proto3"`
+	xxx_hidden_Metadata        map[string]string      `protobuf:"bytes,3,rep,name=metadata,proto3" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	xxx_hidden_ExpectedVersion int64                  `protobuf:"varint,4,opt,name=expected_version,json=expectedVersion,proto3"`
+	unknownFields              protoimpl.UnknownFields
+	sizeCache                  protoimpl.SizeCache
 }
 
 func (x *UpdateItemRequest) Reset() {
@@ -162,44 +212,79 @@ func (x *UpdateItemRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UpdateItemRequest.ProtoReflect.Descriptor instead.
-func (*UpdateItemRequest) Descriptor() ([]byte, []int) {
-	return file_data_proto_rawDescGZIP(), []int{2}
-}
-
 func (x *UpdateItemRequest) GetId() string {
 	if x != nil {
-		return x.Id
+		return x.xxx_hidden_Id
 	}
 	return ""
 }
 
 func (x *UpdateItemRequest) GetEncryptedData() []byte {
 	if x != nil {
-		return x.EncryptedData
+		return x.xxx_hidden_EncryptedData
 	}
 	return nil
 }
 
 func (x *UpdateItemRequest) GetMetadata() map[string]string {
 	if x != nil {
-		return x.Metadata
+		return x.xxx_hidden_Metadata
 	}
 	return nil
 }
 
 func (x *UpdateItemRequest) GetExpectedVersion() int64 {
 	if x != nil {
-		return x.ExpectedVersion
+		return x.xxx_hidden_ExpectedVersion
 	}
 	return 0
 }
 
+func (x *UpdateItemRequest) SetId(v string) {
+	x.xxx_hidden_Id = v
+}
+
+func (x *UpdateItemRequest) SetEncryptedData(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_EncryptedData = v
+}
+
+func (x *UpdateItemRequest) SetMetadata(v map[string]string) {
+	x.xxx_hidden_Metadata = v
+}
+
+func (x *UpdateItemRequest) SetExpectedVersion(v int64) {
+	x.xxx_hidden_ExpectedVersion = v
+}
+
+type UpdateItemRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id            string
+	EncryptedData []byte
+	Metadata      map[string]string
+	// expected_version enables optimistic concurrency control.
+	ExpectedVersion int64
+}
+
+func (b0 UpdateItemRequest_builder) Build() *UpdateItemRequest {
+	m0 := &UpdateItemRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Id = b.Id
+	x.xxx_hidden_EncryptedData = b.EncryptedData
+	x.xxx_hidden_Metadata = b.Metadata
+	x.xxx_hidden_ExpectedVersion = b.ExpectedVersion
+	return m0
+}
+
 type UpdateItemResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Item          *Item                  `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Item *Item                  `protobuf:"bytes,1,opt,name=item,proto3"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *UpdateItemResponse) Reset() {
@@ -227,21 +312,45 @@ func (x *UpdateItemResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UpdateItemResponse.ProtoReflect.Descriptor instead.
-func (*UpdateItemResponse) Descriptor() ([]byte, []int) {
-	return file_data_proto_rawDescGZIP(), []int{3}
-}
-
 func (x *UpdateItemResponse) GetItem() *Item {
 	if x != nil {
-		return x.Item
+		return x.xxx_hidden_Item
 	}
 	return nil
 }
 
+func (x *UpdateItemResponse) SetItem(v *Item) {
+	x.xxx_hidden_Item = v
+}
+
+func (x *UpdateItemResponse) HasItem() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Item != nil
+}
+
+func (x *UpdateItemResponse) ClearItem() {
+	x.xxx_hidden_Item = nil
+}
+
+type UpdateItemResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Item *Item
+}
+
+func (b0 UpdateItemResponse_builder) Build() *UpdateItemResponse {
+	m0 := &UpdateItemResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Item = b.Item
+	return m0
+}
+
 type DeleteItemRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id string                 `protobuf:"bytes,1,opt,name=id,proto3"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -271,23 +380,36 @@ func (x *DeleteItemRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DeleteItemRequest.ProtoReflect.Descriptor instead.
-func (*DeleteItemRequest) Descriptor() ([]byte, []int) {
-	return file_data_proto_rawDescGZIP(), []int{4}
-}
-
 func (x *DeleteItemRequest) GetId() string {
 	if x != nil {
-		return x.Id
+		return x.xxx_hidden_Id
 	}
 	return ""
 }
 
+func (x *DeleteItemRequest) SetId(v string) {
+	x.xxx_hidden_Id = v
+}
+
+type DeleteItemRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id string
+}
+
+func (b0 DeleteItemRequest_builder) Build() *DeleteItemRequest {
+	m0 := &DeleteItemRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Id = b.Id
+	return m0
+}
+
 type DeleteItemResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Item          *Item                  `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Item *Item                  `protobuf:"bytes,1,opt,name=item,proto3"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *DeleteItemResponse) Reset() {
@@ -315,26 +437,48 @@ func (x *DeleteItemResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DeleteItemResponse.ProtoReflect.Descriptor instead.
-func (*DeleteItemResponse) Descriptor() ([]byte, []int) {
-	return file_data_proto_rawDescGZIP(), []int{5}
-}
-
 func (x *DeleteItemResponse) GetItem() *Item {
 	if x != nil {
-		return x.Item
+		return x.xxx_hidden_Item
 	}
 	return nil
 }
 
+func (x *DeleteItemResponse) SetItem(v *Item) {
+	x.xxx_hidden_Item = v
+}
+
+func (x *DeleteItemResponse) HasItem() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Item != nil
+}
+
+func (x *DeleteItemResponse) ClearItem() {
+	x.xxx_hidden_Item = nil
+}
+
+type DeleteItemResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Item *Item
+}
+
+func (b0 DeleteItemResponse_builder) Build() *DeleteItemResponse {
+	m0 := &DeleteItemResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Item = b.Item
+	return m0
+}
+
 type ListItemsRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// If set, only items of this type are returned.
-	Type DataType `protobuf:"varint,1,opt,name=type,proto3,enum=gophkeeper.v1.DataType" json:"type,omitempty"`
-	// When true, soft-deleted items are included.
-	IncludeDeleted bool `protobuf:"varint,2,opt,name=include_deleted,json=includeDeleted,proto3" json:"include_deleted,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state                     protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Type           DataType               `protobuf:"varint,1,opt,name=type,proto3,enum=gophkeeper.v1.DataType"`
+	xxx_hidden_IncludeDeleted bool                   `protobuf:"varint,2,opt,name=include_deleted,json=includeDeleted,proto3"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *ListItemsRequest) Reset() {
@@ -362,30 +506,51 @@ func (x *ListItemsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListItemsRequest.ProtoReflect.Descriptor instead.
-func (*ListItemsRequest) Descriptor() ([]byte, []int) {
-	return file_data_proto_rawDescGZIP(), []int{6}
-}
-
 func (x *ListItemsRequest) GetType() DataType {
 	if x != nil {
-		return x.Type
+		return x.xxx_hidden_Type
 	}
 	return DataType_DATA_TYPE_UNSPECIFIED
 }
 
 func (x *ListItemsRequest) GetIncludeDeleted() bool {
 	if x != nil {
-		return x.IncludeDeleted
+		return x.xxx_hidden_IncludeDeleted
 	}
 	return false
 }
 
+func (x *ListItemsRequest) SetType(v DataType) {
+	x.xxx_hidden_Type = v
+}
+
+func (x *ListItemsRequest) SetIncludeDeleted(v bool) {
+	x.xxx_hidden_IncludeDeleted = v
+}
+
+type ListItemsRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// If set, only items of this type are returned.
+	Type DataType
+	// When true, soft-deleted items are included.
+	IncludeDeleted bool
+}
+
+func (b0 ListItemsRequest_builder) Build() *ListItemsRequest {
+	m0 := &ListItemsRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Type = b.Type
+	x.xxx_hidden_IncludeDeleted = b.IncludeDeleted
+	return m0
+}
+
 type ListItemsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Items         []*Item                `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Items *[]*Item               `protobuf:"bytes,1,rep,name=items,proto3"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *ListItemsResponse) Reset() {
@@ -413,21 +578,36 @@ func (x *ListItemsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListItemsResponse.ProtoReflect.Descriptor instead.
-func (*ListItemsResponse) Descriptor() ([]byte, []int) {
-	return file_data_proto_rawDescGZIP(), []int{7}
-}
-
 func (x *ListItemsResponse) GetItems() []*Item {
 	if x != nil {
-		return x.Items
+		if x.xxx_hidden_Items != nil {
+			return *x.xxx_hidden_Items
+		}
 	}
 	return nil
 }
 
+func (x *ListItemsResponse) SetItems(v []*Item) {
+	x.xxx_hidden_Items = &v
+}
+
+type ListItemsResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Items []*Item
+}
+
+func (b0 ListItemsResponse_builder) Build() *ListItemsResponse {
+	m0 := &ListItemsResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Items = &b.Items
+	return m0
+}
+
 type GetItemRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id string                 `protobuf:"bytes,1,opt,name=id,proto3"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -457,23 +637,36 @@ func (x *GetItemRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetItemRequest.ProtoReflect.Descriptor instead.
-func (*GetItemRequest) Descriptor() ([]byte, []int) {
-	return file_data_proto_rawDescGZIP(), []int{8}
-}
-
 func (x *GetItemRequest) GetId() string {
 	if x != nil {
-		return x.Id
+		return x.xxx_hidden_Id
 	}
 	return ""
 }
 
+func (x *GetItemRequest) SetId(v string) {
+	x.xxx_hidden_Id = v
+}
+
+type GetItemRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id string
+}
+
+func (b0 GetItemRequest_builder) Build() *GetItemRequest {
+	m0 := &GetItemRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Id = b.Id
+	return m0
+}
+
 type GetItemResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Item          *Item                  `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Item *Item                  `protobuf:"bytes,1,opt,name=item,proto3"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *GetItemResponse) Reset() {
@@ -501,16 +694,40 @@ func (x *GetItemResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetItemResponse.ProtoReflect.Descriptor instead.
-func (*GetItemResponse) Descriptor() ([]byte, []int) {
-	return file_data_proto_rawDescGZIP(), []int{9}
-}
-
 func (x *GetItemResponse) GetItem() *Item {
 	if x != nil {
-		return x.Item
+		return x.xxx_hidden_Item
 	}
 	return nil
+}
+
+func (x *GetItemResponse) SetItem(v *Item) {
+	x.xxx_hidden_Item = v
+}
+
+func (x *GetItemResponse) HasItem() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Item != nil
+}
+
+func (x *GetItemResponse) ClearItem() {
+	x.xxx_hidden_Item = nil
+}
+
+type GetItemResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Item *Item
+}
+
+func (b0 GetItemResponse_builder) Build() *GetItemResponse {
+	m0 := &GetItemResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Item = b.Item
+	return m0
 }
 
 var File_data_proto protoreflect.FileDescriptor
@@ -559,18 +776,6 @@ const file_data_proto_rawDesc = "" +
 	"DeleteItem\x12 .gophkeeper.v1.DeleteItemRequest\x1a!.gophkeeper.v1.DeleteItemResponse\"\x16\x82\xd3\xe4\x93\x02\x10*\x0e/v1/items/{id}\x12a\n" +
 	"\tListItems\x12\x1f.gophkeeper.v1.ListItemsRequest\x1a .gophkeeper.v1.ListItemsResponse\"\x11\x82\xd3\xe4\x93\x02\v\x12\t/v1/items\x12`\n" +
 	"\aGetItem\x12\x1d.gophkeeper.v1.GetItemRequest\x1a\x1e.gophkeeper.v1.GetItemResponse\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/items/{id}B9Z7github.com/qutaq/gophkeeper/internal/proto;gophkeeperv1b\x06proto3"
-
-var (
-	file_data_proto_rawDescOnce sync.Once
-	file_data_proto_rawDescData []byte
-)
-
-func file_data_proto_rawDescGZIP() []byte {
-	file_data_proto_rawDescOnce.Do(func() {
-		file_data_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_data_proto_rawDesc), len(file_data_proto_rawDesc)))
-	})
-	return file_data_proto_rawDescData
-}
 
 var file_data_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_data_proto_goTypes = []any{

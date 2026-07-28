@@ -16,8 +16,8 @@ type Client struct {
 }
 
 // ClientTLS configures transport security for gRPC.
+// TLS is always enabled; plaintext gRPC is not supported.
 type ClientTLS struct {
-	Enabled            bool   `yaml:"enabled"`
 	CAFile             string `yaml:"ca_file"`
 	CertFile           string `yaml:"cert_file"`
 	KeyFile            string `yaml:"key_file"`
@@ -31,7 +31,6 @@ func DefaultClient() Client {
 	return Client{
 		ServerAddress: getenv("GOPHKEEPER_SERVER", "localhost:50051"),
 		TLS: ClientTLS{
-			Enabled:            getenvBool("GOPHKEEPER_TLS", false),
 			CAFile:             os.Getenv("GOPHKEEPER_TLS_CA"),
 			CertFile:           os.Getenv("GOPHKEEPER_TLS_CLIENT_CERT"),
 			KeyFile:            os.Getenv("GOPHKEEPER_TLS_CLIENT_KEY"),
@@ -66,9 +65,6 @@ func LoadClient(path string) (Client, error) {
 	}
 	if v := os.Getenv("GOPHKEEPER_DATA_DIR"); v != "" {
 		cfg.DataDir = v
-	}
-	if os.Getenv("GOPHKEEPER_TLS") != "" {
-		cfg.TLS.Enabled = getenvBool("GOPHKEEPER_TLS", cfg.TLS.Enabled)
 	}
 	if v := os.Getenv("GOPHKEEPER_TLS_CA"); v != "" {
 		cfg.TLS.CAFile = v

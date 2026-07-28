@@ -18,13 +18,13 @@ import (
 	"github.com/qutaq/gophkeeper/internal/config"
 )
 
-func TestDialInsecure(t *testing.T) {
+func TestDialTLS(t *testing.T) {
 	t.Parallel()
 
-	// Dial does not connect until RPC; NewClient should succeed with insecure creds.
+	// Dial does not connect until RPC; NewClient should succeed with TLS creds.
 	conn, err := transport.Dial(config.Client{
 		ServerAddress: "127.0.0.1:1",
-		TLS:           config.ClientTLS{Enabled: false},
+		TLS:           config.ClientTLS{InsecureSkipVerify: true},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -42,8 +42,7 @@ func TestDialTLSWithCA(t *testing.T) {
 	conn, err := transport.Dial(config.Client{
 		ServerAddress: "127.0.0.1:1",
 		TLS: config.ClientTLS{
-			Enabled: true,
-			CAFile:  caFile,
+			CAFile: caFile,
 		},
 	})
 	if err != nil {
@@ -61,7 +60,7 @@ func TestDialTLSInvalidCA(t *testing.T) {
 	}
 	_, err := transport.Dial(config.Client{
 		ServerAddress: "127.0.0.1:1",
-		TLS:           config.ClientTLS{Enabled: true, CAFile: path},
+		TLS:           config.ClientTLS{CAFile: path},
 	})
 	if err == nil {
 		t.Fatal("expected invalid ca error")

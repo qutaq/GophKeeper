@@ -10,7 +10,6 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 
 	"github.com/qutaq/gophkeeper/internal/config"
@@ -25,18 +24,14 @@ type Conn struct {
 	Sync gophkeeperv1.SyncServiceClient
 }
 
-// Dial opens a gRPC connection using client config.
+// Dial opens a TLS gRPC connection using client config.
+// Plaintext is not supported: tokens and ciphertext must not travel unprotected.
 func Dial(cfg config.Client) (*Conn, error) {
-	var creds credentials.TransportCredentials
-	if cfg.TLS.Enabled {
-		tlsCfg, err := buildTLSConfig(cfg.TLS)
-		if err != nil {
-			return nil, err
-		}
-		creds = credentials.NewTLS(tlsCfg)
-	} else {
-		creds = insecure.NewCredentials()
+	tlsCfg, err := buildTLSConfig(cfg.TLS)
+	if err != nil {
+		return nil, err
 	}
+	creds := credentials.NewTLS(tlsCfg)
 
 	raw, err := grpc.NewClient(cfg.ServerAddress, grpc.WithTransportCredentials(creds))
 	if err != nil {
@@ -70,7 +65,7 @@ func buildTLSConfig(c config.ClientTLS) (*tls.Config, error) {
 		}
 		tlsCfg.Certificates = []tls.Certificate{cert}
 	}
-	tlsCfg.InsecureSkipVerify = c.InsecureSkipVerify //nolint:gosec // optional for local/dev
+	tlsCfg.InsecureSkipVerify = c.InsecureSkipVerify //nolint:gosec // optional for local/dev self-signed
 	return tlsCfg, nil
 }
 

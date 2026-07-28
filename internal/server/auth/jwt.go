@@ -144,10 +144,10 @@ func NewTokenManager(cfg TokenManagerConfig) (*TokenManager, error) {
 		return nil, fmt.Errorf("auth: nil key ring")
 	}
 	if cfg.AccessTTL <= 0 {
-		cfg.AccessTTL = 15 * time.Minute
+		return nil, fmt.Errorf("auth: AccessTTL must be positive")
 	}
 	if cfg.RefreshTTL <= 0 {
-		cfg.RefreshTTL = 30 * 24 * time.Hour
+		return nil, fmt.Errorf("auth: RefreshTTL must be positive")
 	}
 	if cfg.Issuer == "" {
 		cfg.Issuer = "gophkeeper"

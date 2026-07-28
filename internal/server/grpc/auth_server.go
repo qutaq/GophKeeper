@@ -14,14 +14,23 @@ import (
 	"github.com/qutaq/gophkeeper/internal/server/auth"
 )
 
+// AuthService is the auth use-cases required by gRPC handlers and the interceptor.
+type AuthService interface {
+	Register(ctx context.Context, login, password string) (*model.User, error)
+	Login(ctx context.Context, login, password string) (*model.User, *auth.TokenPair, error)
+	Refresh(ctx context.Context, refreshToken string) (*auth.TokenPair, error)
+	Logout(ctx context.Context, refreshToken string) error
+	ParseAccessToken(accessToken string) (string, error)
+}
+
 // AuthServer implements gophkeeper.v1.AuthService.
 type AuthServer struct {
 	gophkeeperv1.UnimplementedAuthServiceServer
-	svc *auth.Service
+	svc AuthService
 }
 
 // NewAuthServer wires an auth Service into gRPC.
-func NewAuthServer(svc *auth.Service) *AuthServer {
+func NewAuthServer(svc AuthService) *AuthServer {
 	return &AuthServer{svc: svc}
 }
 
@@ -31,7 +40,7 @@ func (s *AuthServer) Register(ctx context.Context, req *gophkeeperv1.RegisterReq
 	if err != nil {
 		return nil, mapAuthErr(err)
 	}
-	return &gophkeeperv1.RegisterResponse{User: toProtoUser(user)}, nil
+	return gophkeeperv1.RegisterResponse_builder{User: toProtoUser(user)}.Build(), nil
 }
 
 // Login authenticates and returns tokens.
@@ -40,11 +49,11 @@ func (s *AuthServer) Login(ctx context.Context, req *gophkeeperv1.LoginRequest) 
 	if err != nil {
 		return nil, mapAuthErr(err)
 	}
-	return &gophkeeperv1.LoginResponse{
+	return gophkeeperv1.LoginResponse_builder{
 		AccessToken:  pair.AccessToken,
 		RefreshToken: pair.RefreshToken,
 		User:         toProtoUser(user),
-	}, nil
+	}.Build(), nil
 }
 
 // Refresh rotates tokens.
@@ -53,10 +62,10 @@ func (s *AuthServer) Refresh(ctx context.Context, req *gophkeeperv1.RefreshReque
 	if err != nil {
 		return nil, mapAuthErr(err)
 	}
-	return &gophkeeperv1.RefreshResponse{
+	return gophkeeperv1.RefreshResponse_builder{
 		AccessToken:  pair.AccessToken,
 		RefreshToken: pair.RefreshToken,
-	}, nil
+	}.Build(), nil
 }
 
 // Logout revokes a refresh token.
@@ -64,21 +73,21 @@ func (s *AuthServer) Logout(ctx context.Context, req *gophkeeperv1.LogoutRequest
 	if err := s.svc.Logout(ctx, req.GetRefreshToken()); err != nil {
 		return nil, mapAuthErr(err)
 	}
-	return &gophkeeperv1.LogoutResponse{}, nil
+	return gophkeeperv1.LogoutResponse_builder{}.Build(), nil
 }
 
 func toProtoUser(u *model.User) *gophkeeperv1.User {
 	if u == nil {
 		return nil
 	}
-	out := &gophkeeperv1.User{Id: u.ID, Login: u.Login}
+	b := gophkeeperv1.User_builder{Id: u.ID, Login: u.Login}
 	if !u.CreatedAt.IsZero() {
-		out.CreatedAt = timestamppb.New(u.CreatedAt)
+		b.CreatedAt = timestamppb.New(u.CreatedAt)
 	}
 	if !u.UpdatedAt.IsZero() {
-		out.UpdatedAt = timestamppb.New(u.UpdatedAt)
+		b.UpdatedAt = timestamppb.New(u.UpdatedAt)
 	}
-	return out
+	return b.Build()
 }
 
 func mapAuthErr(err error) error {

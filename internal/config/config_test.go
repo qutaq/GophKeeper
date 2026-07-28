@@ -12,6 +12,8 @@ func TestLoadServerRequiresSecrets(t *testing.T) {
 	t.Setenv("DATABASE_URL", "")
 	t.Setenv("GOPHKEEPER_ATREST_KEY", "")
 	t.Setenv("GOPHKEEPER_JWT_KEYS", "")
+	t.Setenv("GOPHKEEPER_TLS_CERT", "")
+	t.Setenv("GOPHKEEPER_TLS_KEY", "")
 	if _, err := config.LoadServer(); err == nil {
 		t.Fatal("expected error")
 	}
@@ -22,14 +24,25 @@ func TestLoadServerOK(t *testing.T) {
 	t.Setenv("GOPHKEEPER_ATREST_KEY", "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef")
 	t.Setenv("GOPHKEEPER_JWT_KEYS", "v1:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef")
 	t.Setenv("GOPHKEEPER_JWT_CURRENT_KID", "v1")
-	t.Setenv("GOPHKEEPER_TLS_CERT", "")
-	t.Setenv("GOPHKEEPER_TLS_KEY", "")
+	t.Setenv("GOPHKEEPER_TLS_CERT", "/tmp/a.crt")
+	t.Setenv("GOPHKEEPER_TLS_KEY", "/tmp/a.key")
 	cfg, err := config.LoadServer()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if cfg.GRPCAddr == "" || cfg.JWTIssuer == "" {
+	if cfg.GRPCAddr == "" || cfg.JWTIssuer == "" || cfg.TLSCertFile == "" {
 		t.Fatalf("%+v", cfg)
+	}
+}
+
+func TestLoadServerTLSRequired(t *testing.T) {
+	t.Setenv("DATABASE_URL", "postgres://u:p@localhost:5432/db?sslmode=disable")
+	t.Setenv("GOPHKEEPER_ATREST_KEY", "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef")
+	t.Setenv("GOPHKEEPER_JWT_KEYS", "v1:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef")
+	t.Setenv("GOPHKEEPER_TLS_CERT", "")
+	t.Setenv("GOPHKEEPER_TLS_KEY", "")
+	if _, err := config.LoadServer(); err == nil {
+		t.Fatal("expected tls required error")
 	}
 }
 
@@ -47,18 +60,18 @@ func TestLoadServerTLSPairRequired(t *testing.T) {
 func TestLoadClientYAMLAndEnv(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "config.yaml")
-	content := []byte("server_address: example:50051\ndata_dir: " + filepath.ToSlash(dir) + "\ntls:\n  enabled: true\n  ca_file: ca.pem\n")
+	content := []byte("server_address: example:50051\ndata_dir: " + filepath.ToSlash(dir) + "\ntls:\n  ca_file: ca.pem\n")
 	if err := os.WriteFile(path, content, 0o600); err != nil {
 		t.Fatal(err)
 	}
 	t.Setenv("GOPHKEEPER_SERVER", "")
 	t.Setenv("GOPHKEEPER_DATA_DIR", "")
-	t.Setenv("GOPHKEEPER_TLS", "")
+	t.Setenv("GOPHKEEPER_TLS_CA", "")
 	cfg, err := config.LoadClient(path)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if cfg.ServerAddress != "example:50051" || !cfg.TLS.Enabled || cfg.TLS.CAFile != "ca.pem" {
+	if cfg.ServerAddress != "example:50051" || cfg.TLS.CAFile != "ca.pem" {
 		t.Fatalf("%+v", cfg)
 	}
 	if cfg.DBPath() != filepath.Join(dir, "vault.db") {
@@ -82,8 +95,8 @@ func TestLoadServerTTLAndReflection(t *testing.T) {
 	t.Setenv("GOPHKEEPER_ACCESS_TTL", "30m")
 	t.Setenv("GOPHKEEPER_REFRESH_TTL", "48h")
 	t.Setenv("GOPHKEEPER_GRPC_REFLECTION", "false")
-	t.Setenv("GOPHKEEPER_TLS_CERT", "")
-	t.Setenv("GOPHKEEPER_TLS_KEY", "")
+	t.Setenv("GOPHKEEPER_TLS_CERT", "/tmp/a.crt")
+	t.Setenv("GOPHKEEPER_TLS_KEY", "/tmp/a.key")
 	cfg, err := config.LoadServer()
 	if err != nil {
 		t.Fatal(err)
@@ -97,7 +110,6 @@ func TestLoadClientEnvTLSOverrides(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("GOPHKEEPER_SERVER", "srv:9")
 	t.Setenv("GOPHKEEPER_DATA_DIR", dir)
-	t.Setenv("GOPHKEEPER_TLS", "true")
 	t.Setenv("GOPHKEEPER_TLS_CA", "ca.pem")
 	t.Setenv("GOPHKEEPER_TLS_SKIP_VERIFY", "true")
 	t.Setenv("GOPHKEEPER_TLS_CLIENT_CERT", "")
@@ -106,7 +118,7 @@ func TestLoadClientEnvTLSOverrides(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !cfg.TLS.Enabled || cfg.TLS.CAFile != "ca.pem" || !cfg.TLS.InsecureSkipVerify {
+	if cfg.TLS.CAFile != "ca.pem" || !cfg.TLS.InsecureSkipVerify {
 		t.Fatalf("%+v", cfg)
 	}
 }

@@ -4,7 +4,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"net"
 	"os"
 	"os/signal"
@@ -24,6 +24,11 @@ import (
 
 // Run loads config, migrates DB, and serves gRPC until signal.
 func Run(ctx context.Context) error {
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stderr, nil)))
+
+	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
 	cfg, err := config.LoadServer()
 	if err != nil {
 		return err
@@ -62,13 +67,9 @@ func Run(ctx context.Context) error {
 	dataSvc := data.NewService(store.Items)
 	syncService := syncsvc.NewService(store.Items)
 
-	var tlsCreds credentials.TransportCredentials
-	if cfg.TLSCertFile != "" {
-		creds, err := credentials.NewServerTLSFromFile(cfg.TLSCertFile, cfg.TLSKeyFile)
-		if err != nil {
-			return fmt.Errorf("app: tls: %w", err)
-		}
-		tlsCreds = creds
+	tlsCreds, err := credentials.NewServerTLSFromFile(cfg.TLSCertFile, cfg.TLSKeyFile)
+	if err != nil {
+		return fmt.Errorf("app: tls: %w", err)
 	}
 
 	server := grpcserver.New(grpcserver.ServerConfig{
@@ -86,26 +87,18 @@ func Run(ctx context.Context) error {
 
 	errCh := make(chan error, 1)
 	go func() {
-		mode := "plaintext"
-		if tlsCreds != nil {
-			mode = "TLS"
-		}
-		log.Printf("gophkeeper-server listening on %s (%s)", cfg.GRPCAddr, mode)
+		slog.Info("gophkeeper-server listening", "addr", cfg.GRPCAddr, "mode", "TLS")
 		errCh <- server.Serve(lis)
 	}()
 
-	sigCh := make(chan os.Signal, 1)
-	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
-
 	select {
 	case <-ctx.Done():
-		server.GracefulStop()
-		return ctx.Err()
-	case sig := <-sigCh:
-		log.Printf("signal %v, shutting down", sig)
+		stop()
+		slog.Info("shutting down", "cause", context.Cause(ctx))
 		server.GracefulStop()
 		return nil
 	case err := <-errCh:
+		stop()
 		if err != nil && err != grpc.ErrServerStopped {
 			return err
 		}

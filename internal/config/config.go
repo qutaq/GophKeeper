@@ -20,7 +20,7 @@ type Server struct {
 	AccessTTL     time.Duration
 	RefreshTTL    time.Duration
 	EnableReflect bool
-	// TLSCertFile / TLSKeyFile enable gRPC TLS when both are set (custom certs).
+	// TLSCertFile / TLSKeyFile are required for gRPC TLS (use self-signed in dev).
 	TLSCertFile string
 	TLSKeyFile  string
 }
@@ -46,12 +46,18 @@ func LoadServer() (Server, error) {
 		if err != nil {
 			return Server{}, fmt.Errorf("config: GOPHKEEPER_ACCESS_TTL: %w", err)
 		}
+		if d <= 0 {
+			return Server{}, fmt.Errorf("config: GOPHKEEPER_ACCESS_TTL must be positive")
+		}
 		cfg.AccessTTL = d
 	}
 	if v := os.Getenv("GOPHKEEPER_REFRESH_TTL"); v != "" {
 		d, err := time.ParseDuration(v)
 		if err != nil {
 			return Server{}, fmt.Errorf("config: GOPHKEEPER_REFRESH_TTL: %w", err)
+		}
+		if d <= 0 {
+			return Server{}, fmt.Errorf("config: GOPHKEEPER_REFRESH_TTL must be positive")
 		}
 		cfg.RefreshTTL = d
 	}
@@ -64,22 +70,22 @@ func LoadServer() (Server, error) {
 	if cfg.JWTKeys == "" {
 		return Server{}, fmt.Errorf("config: GOPHKEEPER_JWT_KEYS is required (kid:hex[,kid:hex...])")
 	}
-	if (cfg.TLSCertFile == "") != (cfg.TLSKeyFile == "") {
-		return Server{}, fmt.Errorf("config: GOPHKEEPER_TLS_CERT and GOPHKEEPER_TLS_KEY must both be set for TLS")
+	if cfg.TLSCertFile == "" || cfg.TLSKeyFile == "" {
+		return Server{}, fmt.Errorf("config: GOPHKEEPER_TLS_CERT and GOPHKEEPER_TLS_KEY are required (use self-signed certs in dev)")
 	}
 	return cfg, nil
 }
 
 func getenv(key, fallback string) string {
-	if v := os.Getenv(key); v != "" {
+	if v, ok := os.LookupEnv(key); ok {
 		return v
 	}
 	return fallback
 }
 
 func getenvBool(key string, fallback bool) bool {
-	v := os.Getenv(key)
-	if v == "" {
+	v, ok := os.LookupEnv(key)
+	if !ok {
 		return fallback
 	}
 	b, err := strconv.ParseBool(v)

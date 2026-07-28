@@ -23,7 +23,7 @@ type ItemRepository struct {
 	cipher atrest.Cipher
 }
 
-// Create inserts a new item. Version is assigned as max(owner)+1 inside a transaction.
+// Create inserts a new item. Version is max(owner)+1 under a per-owner row lock.
 func (r *ItemRepository) Create(ctx context.Context, item *model.Item) error {
 	if item == nil {
 		return fmt.Errorf("postgres: create item: nil item")
@@ -53,12 +53,9 @@ func (r *ItemRepository) Create(ctx context.Context, item *model.Item) error {
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 
-	var nextVersion int64
-	err = tx.QueryRow(ctx, `
-		SELECT COALESCE(MAX(version), 0) + 1
-		FROM items WHERE owner_id = $1`, item.OwnerID).Scan(&nextVersion)
+	nextVersion, err := nextOwnerVersion(ctx, tx, item.OwnerID)
 	if err != nil {
-		return fmt.Errorf("postgres: next version: %w", err)
+		return err
 	}
 	item.Version = nextVersion
 	item.Deleted = false
@@ -113,12 +110,9 @@ func (r *ItemRepository) writeUpdate(ctx context.Context, item *model.Item, expe
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 
-	var nextVersion int64
-	err = tx.QueryRow(ctx, `
-		SELECT COALESCE(MAX(version), 0) + 1
-		FROM items WHERE owner_id = $1`, item.OwnerID).Scan(&nextVersion)
+	nextVersion, err := nextOwnerVersion(ctx, tx, item.OwnerID)
 	if err != nil {
-		return fmt.Errorf("postgres: next version: %w", err)
+		return err
 	}
 
 	var tag pgconn.CommandTag
@@ -183,12 +177,9 @@ func (r *ItemRepository) SoftDelete(ctx context.Context, ownerID, id string) (*m
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 
-	var nextVersion int64
-	err = tx.QueryRow(ctx, `
-		SELECT COALESCE(MAX(version), 0) + 1
-		FROM items WHERE owner_id = $1`, ownerID).Scan(&nextVersion)
+	nextVersion, err := nextOwnerVersion(ctx, tx, ownerID)
 	if err != nil {
-		return nil, fmt.Errorf("postgres: next version: %w", err)
+		return nil, err
 	}
 	now := time.Now().UTC()
 
@@ -343,6 +334,29 @@ func (r *ItemRepository) rowExists(ctx context.Context, tx pgx.Tx, ownerID, id s
 		return false, fmt.Errorf("postgres: exists: %w", err)
 	}
 	return exists, nil
+}
+
+// nextOwnerVersion returns max(version)+1 for ownerID while holding a row lock on the owner.
+// The lock serializes concurrent Create/Update/SoftDelete under READ COMMITTED so sync
+// cursors never see duplicate (owner_id, version) pairs.
+func nextOwnerVersion(ctx context.Context, tx pgx.Tx, ownerID string) (int64, error) {
+	var lockedID string
+	err := tx.QueryRow(ctx, `SELECT id FROM users WHERE id = $1 FOR UPDATE`, ownerID).Scan(&lockedID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return 0, fmt.Errorf("postgres: next version: owner %s not found", ownerID)
+	}
+	if err != nil {
+		return 0, fmt.Errorf("postgres: lock owner for version: %w", err)
+	}
+
+	var next int64
+	err = tx.QueryRow(ctx, `
+		SELECT COALESCE(MAX(version), 0) + 1
+		FROM items WHERE owner_id = $1`, ownerID).Scan(&next)
+	if err != nil {
+		return 0, fmt.Errorf("postgres: next version: %w", err)
+	}
+	return next, nil
 }
 
 func marshalMetadata(m model.Metadata) ([]byte, error) {

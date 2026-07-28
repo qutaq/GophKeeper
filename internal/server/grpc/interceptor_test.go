@@ -3,6 +3,7 @@ package grpcserver
 import (
 	"context"
 	"testing"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -20,7 +21,11 @@ func TestAuthUnaryInterceptor(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	tm, err := auth.NewTokenManager(auth.TokenManagerConfig{Keys: ring})
+	tm, err := auth.NewTokenManager(auth.TokenManagerConfig{
+		Keys:       ring,
+		AccessTTL:  time.Minute,
+		RefreshTTL: time.Hour,
+	})
 	if err != nil {
 		t.Fatal(err)
 	}

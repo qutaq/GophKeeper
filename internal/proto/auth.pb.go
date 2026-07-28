@@ -11,7 +11,6 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
-	sync "sync"
 	unsafe "unsafe"
 )
 
@@ -23,11 +22,11 @@ const (
 )
 
 type RegisterRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Login         string                 `protobuf:"bytes,1,opt,name=login,proto3" json:"login,omitempty"`
-	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Login    string                 `protobuf:"bytes,1,opt,name=login,proto3"`
+	xxx_hidden_Password string                 `protobuf:"bytes,2,opt,name=password,proto3"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *RegisterRequest) Reset() {
@@ -55,30 +54,49 @@ func (x *RegisterRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RegisterRequest.ProtoReflect.Descriptor instead.
-func (*RegisterRequest) Descriptor() ([]byte, []int) {
-	return file_auth_proto_rawDescGZIP(), []int{0}
-}
-
 func (x *RegisterRequest) GetLogin() string {
 	if x != nil {
-		return x.Login
+		return x.xxx_hidden_Login
 	}
 	return ""
 }
 
 func (x *RegisterRequest) GetPassword() string {
 	if x != nil {
-		return x.Password
+		return x.xxx_hidden_Password
 	}
 	return ""
 }
 
+func (x *RegisterRequest) SetLogin(v string) {
+	x.xxx_hidden_Login = v
+}
+
+func (x *RegisterRequest) SetPassword(v string) {
+	x.xxx_hidden_Password = v
+}
+
+type RegisterRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Login    string
+	Password string
+}
+
+func (b0 RegisterRequest_builder) Build() *RegisterRequest {
+	m0 := &RegisterRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Login = b.Login
+	x.xxx_hidden_Password = b.Password
+	return m0
+}
+
 type RegisterResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	User          *User                  `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_User *User                  `protobuf:"bytes,1,opt,name=user,proto3"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *RegisterResponse) Reset() {
@@ -106,24 +124,48 @@ func (x *RegisterResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RegisterResponse.ProtoReflect.Descriptor instead.
-func (*RegisterResponse) Descriptor() ([]byte, []int) {
-	return file_auth_proto_rawDescGZIP(), []int{1}
-}
-
 func (x *RegisterResponse) GetUser() *User {
 	if x != nil {
-		return x.User
+		return x.xxx_hidden_User
 	}
 	return nil
 }
 
+func (x *RegisterResponse) SetUser(v *User) {
+	x.xxx_hidden_User = v
+}
+
+func (x *RegisterResponse) HasUser() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_User != nil
+}
+
+func (x *RegisterResponse) ClearUser() {
+	x.xxx_hidden_User = nil
+}
+
+type RegisterResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	User *User
+}
+
+func (b0 RegisterResponse_builder) Build() *RegisterResponse {
+	m0 := &RegisterResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_User = b.User
+	return m0
+}
+
 type LoginRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Login         string                 `protobuf:"bytes,1,opt,name=login,proto3" json:"login,omitempty"`
-	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Login    string                 `protobuf:"bytes,1,opt,name=login,proto3"`
+	xxx_hidden_Password string                 `protobuf:"bytes,2,opt,name=password,proto3"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *LoginRequest) Reset() {
@@ -151,32 +193,51 @@ func (x *LoginRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use LoginRequest.ProtoReflect.Descriptor instead.
-func (*LoginRequest) Descriptor() ([]byte, []int) {
-	return file_auth_proto_rawDescGZIP(), []int{2}
-}
-
 func (x *LoginRequest) GetLogin() string {
 	if x != nil {
-		return x.Login
+		return x.xxx_hidden_Login
 	}
 	return ""
 }
 
 func (x *LoginRequest) GetPassword() string {
 	if x != nil {
-		return x.Password
+		return x.xxx_hidden_Password
 	}
 	return ""
 }
 
+func (x *LoginRequest) SetLogin(v string) {
+	x.xxx_hidden_Login = v
+}
+
+func (x *LoginRequest) SetPassword(v string) {
+	x.xxx_hidden_Password = v
+}
+
+type LoginRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Login    string
+	Password string
+}
+
+func (b0 LoginRequest_builder) Build() *LoginRequest {
+	m0 := &LoginRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Login = b.Login
+	x.xxx_hidden_Password = b.Password
+	return m0
+}
+
 type LoginResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	AccessToken   string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
-	RefreshToken  string                 `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
-	User          *User                  `protobuf:"bytes,3,opt,name=user,proto3" json:"user,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_AccessToken  string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3"`
+	xxx_hidden_RefreshToken string                 `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken,proto3"`
+	xxx_hidden_User         *User                  `protobuf:"bytes,3,opt,name=user,proto3"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *LoginResponse) Reset() {
@@ -204,37 +265,73 @@ func (x *LoginResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use LoginResponse.ProtoReflect.Descriptor instead.
-func (*LoginResponse) Descriptor() ([]byte, []int) {
-	return file_auth_proto_rawDescGZIP(), []int{3}
-}
-
 func (x *LoginResponse) GetAccessToken() string {
 	if x != nil {
-		return x.AccessToken
+		return x.xxx_hidden_AccessToken
 	}
 	return ""
 }
 
 func (x *LoginResponse) GetRefreshToken() string {
 	if x != nil {
-		return x.RefreshToken
+		return x.xxx_hidden_RefreshToken
 	}
 	return ""
 }
 
 func (x *LoginResponse) GetUser() *User {
 	if x != nil {
-		return x.User
+		return x.xxx_hidden_User
 	}
 	return nil
 }
 
+func (x *LoginResponse) SetAccessToken(v string) {
+	x.xxx_hidden_AccessToken = v
+}
+
+func (x *LoginResponse) SetRefreshToken(v string) {
+	x.xxx_hidden_RefreshToken = v
+}
+
+func (x *LoginResponse) SetUser(v *User) {
+	x.xxx_hidden_User = v
+}
+
+func (x *LoginResponse) HasUser() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_User != nil
+}
+
+func (x *LoginResponse) ClearUser() {
+	x.xxx_hidden_User = nil
+}
+
+type LoginResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	AccessToken  string
+	RefreshToken string
+	User         *User
+}
+
+func (b0 LoginResponse_builder) Build() *LoginResponse {
+	m0 := &LoginResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_AccessToken = b.AccessToken
+	x.xxx_hidden_RefreshToken = b.RefreshToken
+	x.xxx_hidden_User = b.User
+	return m0
+}
+
 type RefreshRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	RefreshToken  string                 `protobuf:"bytes,1,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_RefreshToken string                 `protobuf:"bytes,1,opt,name=refresh_token,json=refreshToken,proto3"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *RefreshRequest) Reset() {
@@ -262,24 +359,37 @@ func (x *RefreshRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RefreshRequest.ProtoReflect.Descriptor instead.
-func (*RefreshRequest) Descriptor() ([]byte, []int) {
-	return file_auth_proto_rawDescGZIP(), []int{4}
-}
-
 func (x *RefreshRequest) GetRefreshToken() string {
 	if x != nil {
-		return x.RefreshToken
+		return x.xxx_hidden_RefreshToken
 	}
 	return ""
 }
 
+func (x *RefreshRequest) SetRefreshToken(v string) {
+	x.xxx_hidden_RefreshToken = v
+}
+
+type RefreshRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	RefreshToken string
+}
+
+func (b0 RefreshRequest_builder) Build() *RefreshRequest {
+	m0 := &RefreshRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_RefreshToken = b.RefreshToken
+	return m0
+}
+
 type RefreshResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	AccessToken   string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
-	RefreshToken  string                 `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_AccessToken  string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3"`
+	xxx_hidden_RefreshToken string                 `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken,proto3"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *RefreshResponse) Reset() {
@@ -307,30 +417,49 @@ func (x *RefreshResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RefreshResponse.ProtoReflect.Descriptor instead.
-func (*RefreshResponse) Descriptor() ([]byte, []int) {
-	return file_auth_proto_rawDescGZIP(), []int{5}
-}
-
 func (x *RefreshResponse) GetAccessToken() string {
 	if x != nil {
-		return x.AccessToken
+		return x.xxx_hidden_AccessToken
 	}
 	return ""
 }
 
 func (x *RefreshResponse) GetRefreshToken() string {
 	if x != nil {
-		return x.RefreshToken
+		return x.xxx_hidden_RefreshToken
 	}
 	return ""
 }
 
+func (x *RefreshResponse) SetAccessToken(v string) {
+	x.xxx_hidden_AccessToken = v
+}
+
+func (x *RefreshResponse) SetRefreshToken(v string) {
+	x.xxx_hidden_RefreshToken = v
+}
+
+type RefreshResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	AccessToken  string
+	RefreshToken string
+}
+
+func (b0 RefreshResponse_builder) Build() *RefreshResponse {
+	m0 := &RefreshResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_AccessToken = b.AccessToken
+	x.xxx_hidden_RefreshToken = b.RefreshToken
+	return m0
+}
+
 type LogoutRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	RefreshToken  string                 `protobuf:"bytes,1,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_RefreshToken string                 `protobuf:"bytes,1,opt,name=refresh_token,json=refreshToken,proto3"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *LogoutRequest) Reset() {
@@ -358,20 +487,33 @@ func (x *LogoutRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use LogoutRequest.ProtoReflect.Descriptor instead.
-func (*LogoutRequest) Descriptor() ([]byte, []int) {
-	return file_auth_proto_rawDescGZIP(), []int{6}
-}
-
 func (x *LogoutRequest) GetRefreshToken() string {
 	if x != nil {
-		return x.RefreshToken
+		return x.xxx_hidden_RefreshToken
 	}
 	return ""
 }
 
+func (x *LogoutRequest) SetRefreshToken(v string) {
+	x.xxx_hidden_RefreshToken = v
+}
+
+type LogoutRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	RefreshToken string
+}
+
+func (b0 LogoutRequest_builder) Build() *LogoutRequest {
+	m0 := &LogoutRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_RefreshToken = b.RefreshToken
+	return m0
+}
+
 type LogoutResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -401,9 +543,16 @@ func (x *LogoutResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use LogoutResponse.ProtoReflect.Descriptor instead.
-func (*LogoutResponse) Descriptor() ([]byte, []int) {
-	return file_auth_proto_rawDescGZIP(), []int{7}
+type LogoutResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+}
+
+func (b0 LogoutResponse_builder) Build() *LogoutResponse {
+	m0 := &LogoutResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	return m0
 }
 
 var File_auth_proto protoreflect.FileDescriptor
@@ -437,18 +586,6 @@ const file_auth_proto_rawDesc = "" +
 	"\x05Login\x12\x1b.gophkeeper.v1.LoginRequest\x1a\x1c.gophkeeper.v1.LoginResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/auth/login\x12e\n" +
 	"\aRefresh\x12\x1d.gophkeeper.v1.RefreshRequest\x1a\x1e.gophkeeper.v1.RefreshResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/v1/auth/refresh\x12a\n" +
 	"\x06Logout\x12\x1c.gophkeeper.v1.LogoutRequest\x1a\x1d.gophkeeper.v1.LogoutResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/v1/auth/logoutB9Z7github.com/qutaq/gophkeeper/internal/proto;gophkeeperv1b\x06proto3"
-
-var (
-	file_auth_proto_rawDescOnce sync.Once
-	file_auth_proto_rawDescData []byte
-)
-
-func file_auth_proto_rawDescGZIP() []byte {
-	file_auth_proto_rawDescOnce.Do(func() {
-		file_auth_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_auth_proto_rawDesc), len(file_auth_proto_rawDesc)))
-	})
-	return file_auth_proto_rawDescData
-}
 
 var file_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_auth_proto_goTypes = []any{

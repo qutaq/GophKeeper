@@ -8,18 +8,15 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	gophkeeperv1 "github.com/qutaq/gophkeeper/internal/proto"
-	"github.com/qutaq/gophkeeper/internal/server/auth"
-	"github.com/qutaq/gophkeeper/internal/server/data"
-	syncsvc "github.com/qutaq/gophkeeper/internal/server/sync"
 )
 
 // ServerConfig configures the gRPC server.
 type ServerConfig struct {
-	Auth             *auth.Service
-	Data             *data.Service
-	Sync             *syncsvc.Service
+	Auth             AuthService
+	Data             DataService
+	Sync             SyncService
 	EnableReflection bool
-	// TLSCreds enables TLS when non-nil (custom server certificates).
+	// TLSCreds enables TLS when non-nil. Required in production; nil allowed for in-process tests.
 	TLSCreds credentials.TransportCredentials
 }
 

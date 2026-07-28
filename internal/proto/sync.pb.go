@@ -12,7 +12,6 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
-	sync "sync"
 	unsafe "unsafe"
 )
 
@@ -24,13 +23,11 @@ const (
 )
 
 type SyncRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// since_version is the exclusive lower bound of item versions to return.
-	SinceVersion int64 `protobuf:"varint,1,opt,name=since_version,json=sinceVersion,proto3" json:"since_version,omitempty"`
-	// since_timestamp is an optional alternative cursor (items with updated_at > value).
-	SinceTimestamp *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=since_timestamp,json=sinceTimestamp,proto3" json:"since_timestamp,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state                     protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_SinceVersion   int64                  `protobuf:"varint,1,opt,name=since_version,json=sinceVersion,proto3"`
+	xxx_hidden_SinceTimestamp *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=since_timestamp,json=sinceTimestamp,proto3"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *SyncRequest) Reset() {
@@ -58,32 +55,63 @@ func (x *SyncRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SyncRequest.ProtoReflect.Descriptor instead.
-func (*SyncRequest) Descriptor() ([]byte, []int) {
-	return file_sync_proto_rawDescGZIP(), []int{0}
-}
-
 func (x *SyncRequest) GetSinceVersion() int64 {
 	if x != nil {
-		return x.SinceVersion
+		return x.xxx_hidden_SinceVersion
 	}
 	return 0
 }
 
 func (x *SyncRequest) GetSinceTimestamp() *timestamppb.Timestamp {
 	if x != nil {
-		return x.SinceTimestamp
+		return x.xxx_hidden_SinceTimestamp
 	}
 	return nil
 }
 
+func (x *SyncRequest) SetSinceVersion(v int64) {
+	x.xxx_hidden_SinceVersion = v
+}
+
+func (x *SyncRequest) SetSinceTimestamp(v *timestamppb.Timestamp) {
+	x.xxx_hidden_SinceTimestamp = v
+}
+
+func (x *SyncRequest) HasSinceTimestamp() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_SinceTimestamp != nil
+}
+
+func (x *SyncRequest) ClearSinceTimestamp() {
+	x.xxx_hidden_SinceTimestamp = nil
+}
+
+type SyncRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// since_version is the exclusive lower bound of item versions to return.
+	SinceVersion int64
+	// since_timestamp is an optional alternative cursor (items with updated_at > value).
+	SinceTimestamp *timestamppb.Timestamp
+}
+
+func (b0 SyncRequest_builder) Build() *SyncRequest {
+	m0 := &SyncRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_SinceVersion = b.SinceVersion
+	x.xxx_hidden_SinceTimestamp = b.SinceTimestamp
+	return m0
+}
+
 type SyncResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	Items []*Item                `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
-	// server_version is the highest item version among returned (or known) items.
-	ServerVersion int64 `protobuf:"varint,2,opt,name=server_version,json=serverVersion,proto3" json:"server_version,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                    protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Items         *[]*Item               `protobuf:"bytes,1,rep,name=items,proto3"`
+	xxx_hidden_ServerVersion int64                  `protobuf:"varint,2,opt,name=server_version,json=serverVersion,proto3"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *SyncResponse) Reset() {
@@ -111,23 +139,45 @@ func (x *SyncResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SyncResponse.ProtoReflect.Descriptor instead.
-func (*SyncResponse) Descriptor() ([]byte, []int) {
-	return file_sync_proto_rawDescGZIP(), []int{1}
-}
-
 func (x *SyncResponse) GetItems() []*Item {
 	if x != nil {
-		return x.Items
+		if x.xxx_hidden_Items != nil {
+			return *x.xxx_hidden_Items
+		}
 	}
 	return nil
 }
 
 func (x *SyncResponse) GetServerVersion() int64 {
 	if x != nil {
-		return x.ServerVersion
+		return x.xxx_hidden_ServerVersion
 	}
 	return 0
+}
+
+func (x *SyncResponse) SetItems(v []*Item) {
+	x.xxx_hidden_Items = &v
+}
+
+func (x *SyncResponse) SetServerVersion(v int64) {
+	x.xxx_hidden_ServerVersion = v
+}
+
+type SyncResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Items []*Item
+	// server_version is the highest item version among returned (or known) items.
+	ServerVersion int64
+}
+
+func (b0 SyncResponse_builder) Build() *SyncResponse {
+	m0 := &SyncResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Items = &b.Items
+	x.xxx_hidden_ServerVersion = b.ServerVersion
+	return m0
 }
 
 var File_sync_proto protoreflect.FileDescriptor
@@ -144,18 +194,6 @@ const file_sync_proto_rawDesc = "" +
 	"\x0eserver_version\x18\x02 \x01(\x03R\rserverVersion2c\n" +
 	"\vSyncService\x12T\n" +
 	"\x04Sync\x12\x1a.gophkeeper.v1.SyncRequest\x1a\x1b.gophkeeper.v1.SyncResponse\"\x13\x82\xd3\xe4\x93\x02\r:\x01*\"\b/v1/syncB9Z7github.com/qutaq/gophkeeper/internal/proto;gophkeeperv1b\x06proto3"
-
-var (
-	file_sync_proto_rawDescOnce sync.Once
-	file_sync_proto_rawDescData []byte
-)
-
-func file_sync_proto_rawDescGZIP() []byte {
-	file_sync_proto_rawDescOnce.Do(func() {
-		file_sync_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_sync_proto_rawDesc), len(file_sync_proto_rawDesc)))
-	})
-	return file_sync_proto_rawDescData
-}
 
 var file_sync_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_sync_proto_goTypes = []any{

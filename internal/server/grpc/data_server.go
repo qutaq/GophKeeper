@@ -13,14 +13,23 @@ import (
 	"github.com/qutaq/gophkeeper/internal/server/storage"
 )
 
+// DataService is the item CRUD use-cases required by gRPC handlers.
+type DataService interface {
+	Add(ctx context.Context, ownerID string, in data.AddInput) (*model.Item, error)
+	Update(ctx context.Context, ownerID string, in data.UpdateInput) (*model.Item, error)
+	Delete(ctx context.Context, ownerID, id string) (*model.Item, error)
+	Get(ctx context.Context, ownerID, id string) (*model.Item, error)
+	List(ctx context.Context, ownerID string, filter storage.ListItemsFilter) ([]model.Item, error)
+}
+
 // DataServer implements gophkeeper.v1.DataService.
 type DataServer struct {
 	gophkeeperv1.UnimplementedDataServiceServer
-	svc *data.Service
+	svc DataService
 }
 
 // NewDataServer wires a data Service into gRPC.
-func NewDataServer(svc *data.Service) *DataServer {
+func NewDataServer(svc DataService) *DataServer {
 	return &DataServer{svc: svc}
 }
 
@@ -38,7 +47,7 @@ func (s *DataServer) AddItem(ctx context.Context, req *gophkeeperv1.AddItemReque
 	if err != nil {
 		return nil, mapDataErr(err)
 	}
-	return &gophkeeperv1.AddItemResponse{Item: toProtoItem(item)}, nil
+	return gophkeeperv1.AddItemResponse_builder{Item: toProtoItem(item)}.Build(), nil
 }
 
 // UpdateItem updates an owned item.
@@ -56,7 +65,7 @@ func (s *DataServer) UpdateItem(ctx context.Context, req *gophkeeperv1.UpdateIte
 	if err != nil {
 		return nil, mapDataErr(err)
 	}
-	return &gophkeeperv1.UpdateItemResponse{Item: toProtoItem(item)}, nil
+	return gophkeeperv1.UpdateItemResponse_builder{Item: toProtoItem(item)}.Build(), nil
 }
 
 // DeleteItem soft-deletes an owned item.
@@ -69,7 +78,7 @@ func (s *DataServer) DeleteItem(ctx context.Context, req *gophkeeperv1.DeleteIte
 	if err != nil {
 		return nil, mapDataErr(err)
 	}
-	return &gophkeeperv1.DeleteItemResponse{Item: toProtoItem(item)}, nil
+	return gophkeeperv1.DeleteItemResponse_builder{Item: toProtoItem(item)}.Build(), nil
 }
 
 // ListItems lists items for the authenticated owner.
@@ -87,7 +96,7 @@ func (s *DataServer) ListItems(ctx context.Context, req *gophkeeperv1.ListItemsR
 	if err != nil {
 		return nil, mapDataErr(err)
 	}
-	return &gophkeeperv1.ListItemsResponse{Items: toProtoItems(items)}, nil
+	return gophkeeperv1.ListItemsResponse_builder{Items: toProtoItems(items)}.Build(), nil
 }
 
 // GetItem returns one owned item.
@@ -100,7 +109,7 @@ func (s *DataServer) GetItem(ctx context.Context, req *gophkeeperv1.GetItemReque
 	if err != nil {
 		return nil, mapDataErr(err)
 	}
-	return &gophkeeperv1.GetItemResponse{Item: toProtoItem(item)}, nil
+	return gophkeeperv1.GetItemResponse_builder{Item: toProtoItem(item)}.Build(), nil
 }
 
 func requireOwner(ctx context.Context) (string, error) {

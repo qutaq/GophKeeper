@@ -14,6 +14,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/qutaq/gophkeeper/internal/server/storage"
 	"github.com/qutaq/gophkeeper/pkg/crypto/atrest"
 )
 
@@ -21,9 +22,9 @@ import (
 type Store struct {
 	pool          *pgxpool.Pool
 	cipher        atrest.Cipher
-	Users         *UserRepository
-	Items         *ItemRepository
-	RefreshTokens *RefreshTokenRepository
+	Users         storage.UserRepository
+	Items         storage.ItemRepository
+	RefreshTokens storage.RefreshTokenRepository
 }
 
 // Open connects to PostgreSQL and wires repositories.

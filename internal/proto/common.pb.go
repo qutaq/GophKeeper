@@ -12,7 +12,6 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
-	sync "sync"
 	unsafe "unsafe"
 )
 
@@ -77,20 +76,15 @@ func (x DataType) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use DataType.Descriptor instead.
-func (DataType) EnumDescriptor() ([]byte, []int) {
-	return file_common_proto_rawDescGZIP(), []int{0}
-}
-
 // User is a registered account (no secrets in the wire model).
 type User struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Login         string                 `protobuf:"bytes,2,opt,name=login,proto3" json:"login,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id        string                 `protobuf:"bytes,1,opt,name=id,proto3"`
+	xxx_hidden_Login     string                 `protobuf:"bytes,2,opt,name=login,proto3"`
+	xxx_hidden_CreatedAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3"`
+	xxx_hidden_UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=updated_at,json=updatedAt,proto3"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *User) Reset() {
@@ -118,52 +112,105 @@ func (x *User) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use User.ProtoReflect.Descriptor instead.
-func (*User) Descriptor() ([]byte, []int) {
-	return file_common_proto_rawDescGZIP(), []int{0}
-}
-
 func (x *User) GetId() string {
 	if x != nil {
-		return x.Id
+		return x.xxx_hidden_Id
 	}
 	return ""
 }
 
 func (x *User) GetLogin() string {
 	if x != nil {
-		return x.Login
+		return x.xxx_hidden_Login
 	}
 	return ""
 }
 
 func (x *User) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
-		return x.CreatedAt
+		return x.xxx_hidden_CreatedAt
 	}
 	return nil
 }
 
 func (x *User) GetUpdatedAt() *timestamppb.Timestamp {
 	if x != nil {
-		return x.UpdatedAt
+		return x.xxx_hidden_UpdatedAt
 	}
 	return nil
 }
 
+func (x *User) SetId(v string) {
+	x.xxx_hidden_Id = v
+}
+
+func (x *User) SetLogin(v string) {
+	x.xxx_hidden_Login = v
+}
+
+func (x *User) SetCreatedAt(v *timestamppb.Timestamp) {
+	x.xxx_hidden_CreatedAt = v
+}
+
+func (x *User) SetUpdatedAt(v *timestamppb.Timestamp) {
+	x.xxx_hidden_UpdatedAt = v
+}
+
+func (x *User) HasCreatedAt() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_CreatedAt != nil
+}
+
+func (x *User) HasUpdatedAt() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_UpdatedAt != nil
+}
+
+func (x *User) ClearCreatedAt() {
+	x.xxx_hidden_CreatedAt = nil
+}
+
+func (x *User) ClearUpdatedAt() {
+	x.xxx_hidden_UpdatedAt = nil
+}
+
+type User_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id        string
+	Login     string
+	CreatedAt *timestamppb.Timestamp
+	UpdatedAt *timestamppb.Timestamp
+}
+
+func (b0 User_builder) Build() *User {
+	m0 := &User{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Id = b.Id
+	x.xxx_hidden_Login = b.Login
+	x.xxx_hidden_CreatedAt = b.CreatedAt
+	x.xxx_hidden_UpdatedAt = b.UpdatedAt
+	return m0
+}
+
 // Item is a private data record. Payload is already E2E-encrypted by the client.
 type Item struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	OwnerId       string                 `protobuf:"bytes,2,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`
-	Type          DataType               `protobuf:"varint,3,opt,name=type,proto3,enum=gophkeeper.v1.DataType" json:"type,omitempty"`
-	EncryptedData []byte                 `protobuf:"bytes,4,opt,name=encrypted_data,json=encryptedData,proto3" json:"encrypted_data,omitempty"`
-	Metadata      map[string]string      `protobuf:"bytes,5,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Version       int64                  `protobuf:"varint,6,opt,name=version,proto3" json:"version,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	Deleted       bool                   `protobuf:"varint,8,opt,name=deleted,proto3" json:"deleted,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                    protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id            string                 `protobuf:"bytes,1,opt,name=id,proto3"`
+	xxx_hidden_OwnerId       string                 `protobuf:"bytes,2,opt,name=owner_id,json=ownerId,proto3"`
+	xxx_hidden_Type          DataType               `protobuf:"varint,3,opt,name=type,proto3,enum=gophkeeper.v1.DataType"`
+	xxx_hidden_EncryptedData []byte                 `protobuf:"bytes,4,opt,name=encrypted_data,json=encryptedData,proto3"`
+	xxx_hidden_Metadata      map[string]string      `protobuf:"bytes,5,rep,name=metadata,proto3" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	xxx_hidden_Version       int64                  `protobuf:"varint,6,opt,name=version,proto3"`
+	xxx_hidden_UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3"`
+	xxx_hidden_Deleted       bool                   `protobuf:"varint,8,opt,name=deleted,proto3"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *Item) Reset() {
@@ -191,65 +238,134 @@ func (x *Item) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Item.ProtoReflect.Descriptor instead.
-func (*Item) Descriptor() ([]byte, []int) {
-	return file_common_proto_rawDescGZIP(), []int{1}
-}
-
 func (x *Item) GetId() string {
 	if x != nil {
-		return x.Id
+		return x.xxx_hidden_Id
 	}
 	return ""
 }
 
 func (x *Item) GetOwnerId() string {
 	if x != nil {
-		return x.OwnerId
+		return x.xxx_hidden_OwnerId
 	}
 	return ""
 }
 
 func (x *Item) GetType() DataType {
 	if x != nil {
-		return x.Type
+		return x.xxx_hidden_Type
 	}
 	return DataType_DATA_TYPE_UNSPECIFIED
 }
 
 func (x *Item) GetEncryptedData() []byte {
 	if x != nil {
-		return x.EncryptedData
+		return x.xxx_hidden_EncryptedData
 	}
 	return nil
 }
 
 func (x *Item) GetMetadata() map[string]string {
 	if x != nil {
-		return x.Metadata
+		return x.xxx_hidden_Metadata
 	}
 	return nil
 }
 
 func (x *Item) GetVersion() int64 {
 	if x != nil {
-		return x.Version
+		return x.xxx_hidden_Version
 	}
 	return 0
 }
 
 func (x *Item) GetUpdatedAt() *timestamppb.Timestamp {
 	if x != nil {
-		return x.UpdatedAt
+		return x.xxx_hidden_UpdatedAt
 	}
 	return nil
 }
 
 func (x *Item) GetDeleted() bool {
 	if x != nil {
-		return x.Deleted
+		return x.xxx_hidden_Deleted
 	}
 	return false
+}
+
+func (x *Item) SetId(v string) {
+	x.xxx_hidden_Id = v
+}
+
+func (x *Item) SetOwnerId(v string) {
+	x.xxx_hidden_OwnerId = v
+}
+
+func (x *Item) SetType(v DataType) {
+	x.xxx_hidden_Type = v
+}
+
+func (x *Item) SetEncryptedData(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_EncryptedData = v
+}
+
+func (x *Item) SetMetadata(v map[string]string) {
+	x.xxx_hidden_Metadata = v
+}
+
+func (x *Item) SetVersion(v int64) {
+	x.xxx_hidden_Version = v
+}
+
+func (x *Item) SetUpdatedAt(v *timestamppb.Timestamp) {
+	x.xxx_hidden_UpdatedAt = v
+}
+
+func (x *Item) SetDeleted(v bool) {
+	x.xxx_hidden_Deleted = v
+}
+
+func (x *Item) HasUpdatedAt() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_UpdatedAt != nil
+}
+
+func (x *Item) ClearUpdatedAt() {
+	x.xxx_hidden_UpdatedAt = nil
+}
+
+type Item_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id            string
+	OwnerId       string
+	Type          DataType
+	EncryptedData []byte
+	Metadata      map[string]string
+	Version       int64
+	UpdatedAt     *timestamppb.Timestamp
+	Deleted       bool
+}
+
+func (b0 Item_builder) Build() *Item {
+	m0 := &Item{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Id = b.Id
+	x.xxx_hidden_OwnerId = b.OwnerId
+	x.xxx_hidden_Type = b.Type
+	x.xxx_hidden_EncryptedData = b.EncryptedData
+	x.xxx_hidden_Metadata = b.Metadata
+	x.xxx_hidden_Version = b.Version
+	x.xxx_hidden_UpdatedAt = b.UpdatedAt
+	x.xxx_hidden_Deleted = b.Deleted
+	return m0
 }
 
 var File_common_proto protoreflect.FileDescriptor
@@ -287,18 +403,6 @@ const file_common_proto_rawDesc = "" +
 	"\x0eGophKeeper API\x127gRPC API for private data vault with multi-device sync.2\x031.0*\x01\x022\x10application/json:\x10application/jsonZI\n" +
 	"G\n" +
 	"\x06Bearer\x12=\b\x02\x12(JWT access token. Format: Bearer <token>\x1a\rAuthorization \x02Z7github.com/qutaq/gophkeeper/internal/proto;gophkeeperv1b\x06proto3"
-
-var (
-	file_common_proto_rawDescOnce sync.Once
-	file_common_proto_rawDescData []byte
-)
-
-func file_common_proto_rawDescGZIP() []byte {
-	file_common_proto_rawDescOnce.Do(func() {
-		file_common_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_common_proto_rawDesc), len(file_common_proto_rawDesc)))
-	})
-	return file_common_proto_rawDescData
-}
 
 var file_common_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 3)

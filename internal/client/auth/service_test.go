@@ -4,6 +4,9 @@ import (
 	"context"
 	"path/filepath"
 	"testing"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/qutaq/gophkeeper/internal/client/auth"
 	"github.com/qutaq/gophkeeper/internal/client/crypto"
@@ -104,6 +107,58 @@ func TestEnsureAccessRefresh(t *testing.T) {
 	access, err := svc.EnsureAccess(ctx, key)
 	if err != nil || access == "" {
 		t.Fatalf("refresh ensure: %q err=%v", access, err)
+	}
+}
+
+func TestEnsureAccessRefreshExpiredJWT(t *testing.T) {
+	t.Parallel()
+
+	ts := testutil.StartTestServer(t)
+	vault, err := sqlite.Open(filepath.Join(t.TempDir(), "vault.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = vault.Close() })
+
+	conn := &transport.Conn{Auth: ts.AuthCli}
+	svc := auth.NewService(vault, conn)
+	ctx := context.Background()
+	key, err := svc.InitVault(ctx, "frank", []byte("master-secret"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer key.Zero()
+	if err := svc.Register(ctx, "frank", "password1", key); err != nil {
+		t.Fatal(err)
+	}
+
+	expired := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp": time.Now().Add(-time.Minute).Unix(),
+	})
+	expiredToken, err := expired.SignedString([]byte("unused-test-key"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	sealed, err := key.SealString(expiredToken)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	session, err := vault.GetSession(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	session.AccessToken = sealed
+	if err := vault.SaveSession(ctx, session); err != nil {
+		t.Fatal(err)
+	}
+
+	access, err := svc.EnsureAccess(ctx, key)
+	if err != nil || access == "" {
+		t.Fatalf("expired refresh ensure: %q err=%v", access, err)
+	}
+	if access == expiredToken {
+		t.Fatal("EnsureAccess returned expired access token instead of refreshing")
 	}
 }
 

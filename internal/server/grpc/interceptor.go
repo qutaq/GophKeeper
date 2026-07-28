@@ -8,8 +8,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-
-	"github.com/qutaq/gophkeeper/internal/server/auth"
 )
 
 type ctxKey int
@@ -36,7 +34,7 @@ func ContextWithUserID(ctx context.Context, userID string) context.Context {
 }
 
 // AuthUnaryInterceptor validates JWT access tokens and injects owner_id into context.
-func AuthUnaryInterceptor(svc *auth.Service) grpc.UnaryServerInterceptor {
+func AuthUnaryInterceptor(svc AuthService) grpc.UnaryServerInterceptor {
 	return func(
 		ctx context.Context,
 		req any,

@@ -57,6 +57,7 @@ protoc \
   --proto_path=third_party/googleapis \
   --proto_path=third_party \
   --go_out=internal/proto --go_opt=paths=source_relative \
+  --go_opt=default_api_level=API_OPAQUE \
   --go-grpc_out=internal/proto --go-grpc_opt=paths=source_relative \
   --openapiv2_out=api/swagger \
   --openapiv2_opt=allow_merge=true,merge_file_name=gophkeeper,json_names_for_fields=false \
@@ -211,14 +212,14 @@ gophkeeper-client sync
 
 ## Безопасность (фаза 6)
 
-- **TLS**: сервер принимает пользовательские `GOPHKEEPER_TLS_CERT` / `GOPHKEEPER_TLS_KEY`; клиент — `tls.enabled`, `ca_file`, опционально mTLS (`cert_file`/`key_file`)
+- **TLS**: обязателен на сервере (`GOPHKEEPER_TLS_CERT` / `GOPHKEEPER_TLS_KEY`) и клиенте (`ca_file`, опционально mTLS `cert_file`/`key_file`); plaintext не поддерживается — в dev используйте самоподписанные сертификаты
 - **E2E**: полезные нагрузки шифруются AES-256-GCM master-ключом (argon2id из master-пароля) до локального хранения и синхронизации
 - **Сервер**: хранит только шифротекст клиента + дополнительный at-rest слой (`GOPHKEEPER_ATREST_KEY`)
 - **Master-пароль**: salt детерминирован от login (кросс-девайс), verifier в локальном vault проверяет корректность ключа
 - **Секреты в памяти**: master-ключ в `pkg/secure` (best-effort mlock/VirtualLock + Zero); JWT access/refresh в SQLite только в зашифрованном виде
 
 ```bash
-# Сервер с TLS
+# Сервер с TLS (обязательно)
 export GOPHKEEPER_TLS_CERT=/path/to/server.crt
 export GOPHKEEPER_TLS_KEY=/path/to/server.key
 go run ./cmd/server
@@ -226,7 +227,6 @@ go run ./cmd/server
 # Клиент
 # ~/.gophkeeper/config.yaml:
 #   tls:
-#     enabled: true
 #     ca_file: /path/to/ca.crt
 ```
 
