@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package gophkeeper.v1;
+
+option go_package = "github.com/qutaq/gophkeeper/internal/proto;gophkeeperv1";
+
+import "common.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+// SyncService returns changes for multi-device synchronization.
+service SyncService {
+  // Sync returns all item changes for the owner since the given cursor.
+  // Soft-deleted items are included so clients can converge.
+  rpc Sync(SyncRequest) returns (SyncResponse) {
+    option (google.api.http) = {
+      post: "/v1/sync"
+      body: "*"
+    };
+  }
+}
+
+message SyncRequest {
+  // since_version is the exclusive lower bound of item versions to return.
+  int64 since_version = 1;
+  // since_timestamp is an optional alternative cursor (items with updated_at > value).
+  google.protobuf.Timestamp since_timestamp = 2;
+}
+
+message SyncResponse {
+  repeated Item items = 1;
+  // server_version is the highest item version among returned (or known) items.
+  int64 server_version = 2;
+}

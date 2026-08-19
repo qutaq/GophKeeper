@@ -1,0 +1,97 @@
+syntax = "proto3";
+
+package gophkeeper.v1;
+
+option go_package = "github.com/qutaq/gophkeeper/internal/proto;gophkeeperv1";
+
+import "common.proto";
+import "google/api/annotations.proto";
+
+// DataService provides CRUD operations over encrypted private items.
+service DataService {
+  // AddItem creates a new encrypted item for the authenticated owner.
+  rpc AddItem(AddItemRequest) returns (AddItemResponse) {
+    option (google.api.http) = {
+      post: "/v1/items"
+      body: "*"
+    };
+  }
+
+  // UpdateItem updates an existing item owned by the caller.
+  rpc UpdateItem(UpdateItemRequest) returns (UpdateItemResponse) {
+    option (google.api.http) = {
+      put: "/v1/items/{id}"
+      body: "*"
+    };
+  }
+
+  // DeleteItem soft-deletes an item (deleted=true) for sync-friendly removal.
+  rpc DeleteItem(DeleteItemRequest) returns (DeleteItemResponse) {
+    option (google.api.http) = {
+      delete: "/v1/items/{id}"
+    };
+  }
+
+  // ListItems returns items belonging to the authenticated owner.
+  rpc ListItems(ListItemsRequest) returns (ListItemsResponse) {
+    option (google.api.http) = {
+      get: "/v1/items"
+    };
+  }
+
+  // GetItem returns a single item by id if owned by the caller.
+  rpc GetItem(GetItemRequest) returns (GetItemResponse) {
+    option (google.api.http) = {
+      get: "/v1/items/{id}"
+    };
+  }
+}
+
+message AddItemRequest {
+  DataType type = 1;
+  bytes encrypted_data = 2;
+  map<string, string> metadata = 3;
+}
+
+message AddItemResponse {
+  Item item = 1;
+}
+
+message UpdateItemRequest {
+  string id = 1;
+  bytes encrypted_data = 2;
+  map<string, string> metadata = 3;
+  // expected_version enables optimistic concurrency control.
+  int64 expected_version = 4;
+}
+
+message UpdateItemResponse {
+  Item item = 1;
+}
+
+message DeleteItemRequest {
+  string id = 1;
+}
+
+message DeleteItemResponse {
+  Item item = 1;
+}
+
+message ListItemsRequest {
+  // If set, only items of this type are returned.
+  DataType type = 1;
+  // When true, soft-deleted items are included.
+  bool include_deleted = 2;
+}
+
+message ListItemsResponse {
+  repeated Item items = 1;
+}
+
+message GetItemRequest {
+  string id = 1;
+}
+
+message GetItemResponse {
+  Item item = 1;
+}

@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package gophkeeper.v1;
+
+option go_package = "github.com/qutaq/gophkeeper/internal/proto;gophkeeperv1";
+
+import "common.proto";
+import "google/api/annotations.proto";
+
+// AuthService handles registration and authentication.
+service AuthService {
+  // Register creates a new user account.
+  rpc Register(RegisterRequest) returns (RegisterResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/register"
+      body: "*"
+    };
+  }
+
+  // Login authenticates a user and returns access/refresh tokens.
+  rpc Login(LoginRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/login"
+      body: "*"
+    };
+  }
+
+  // Refresh exchanges a valid refresh token for a new token pair.
+  rpc Refresh(RefreshRequest) returns (RefreshResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/refresh"
+      body: "*"
+    };
+  }
+
+  // Logout revokes the given refresh token.
+  rpc Logout(LogoutRequest) returns (LogoutResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/logout"
+      body: "*"
+    };
+  }
+}
+
+message RegisterRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message RegisterResponse {
+  User user = 1;
+}
+
+message LoginRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  User user = 3;
+}
+
+message RefreshRequest {
+  string refresh_token = 1;
+}
+
+message RefreshResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+}
+
+message LogoutRequest {
+  string refresh_token = 1;
+}
+
+message LogoutResponse {}
